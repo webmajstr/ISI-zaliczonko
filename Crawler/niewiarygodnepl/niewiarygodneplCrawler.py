@@ -114,6 +114,7 @@ class niewiarygodneplCrawler(object):
                 linie[0] = linie[0].replace("&quot;","")
                 linie[0] = linie[0].replace("&amp;#8221;","")
                 linie[0] = linie[0].replace(" - Media","")
+                linie[0] = linie[0].replace("/","")
 
                 if not linie[0].encode("utf-8") in self.art_db:
                     self.art_db[linie[0].encode("utf-8")] = wynik.encode("utf-8")
