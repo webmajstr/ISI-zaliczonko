@@ -20,7 +20,7 @@ for key in art_db.keys():
 	key = key.decode("utf-8")
 	path = os.path.realpath(__file__)
 	path = path[0:len(path)-14]
-	path += "//niesamowitepl"
+	path += "/niesamowitepl"
 	if not os.path.exists(path):
 		os.makedirs(path)
 	filename = key + ".txt"
