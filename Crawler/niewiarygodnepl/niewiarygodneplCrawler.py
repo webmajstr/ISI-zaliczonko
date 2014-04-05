@@ -26,7 +26,7 @@ class niewiarygodneplCrawler(object):
         self.art_db = shelve.open("./dane/wyniki.db")
         self.tmp_db = shelve.Shelf(self.dict, protocol=None, writeback=True)
         self.tmp_db = shelve.open("./dane/tmp.db")
-        self.artnum = 0
+        self.artnum = len(self.art_db)
 
     def __del__(self):
         print "Poprawnie dodano " + str(self.artnum) + " nowych artykułów do bazy"
@@ -47,6 +47,17 @@ class niewiarygodneplCrawler(object):
             return False
         return True
 
+    def is_category(self,url):
+        if ("http://niewiarygodne.pl/kat," not in url):
+            return False
+        if (",title," not in url):
+            return False
+        if (",opage," in url):
+            return False
+        if (",sort," in url):
+            return False
+        return True
+
     def crawl_one_page(self, url):
         try:
             urlobject = urllib2.urlopen(url, timeout=120)
@@ -56,6 +67,9 @@ class niewiarygodneplCrawler(object):
             urlcontent = urlobject.read()
         except KeyboardInterrupt:
             exit()
+        except urllib2.HTTPError, e:
+            urlobject = e
+            urlcontent = urlobject.read()
         except:
             self.link_db[url.encode("utf-8")] = 3
             return set()
@@ -71,10 +85,9 @@ class niewiarygodneplCrawler(object):
             tmp = url
             tmp = tmp[24:len(tmp)-5]
             ####################################################################
-            r = urllib2.urlopen(url)
-            _, params = cgi.parse_header(r.headers.get('Content-Type', ''))
+            _, params = cgi.parse_header(urlobject.headers.get('Content-Type', ''))
             encoding = params.get('charset', 'utf-8')
-            html = urlopen(url).read().decode(encoding)    
+            html = urlcontent.decode(encoding)    
             raw = nltk.clean_html(html) 
             
             linie = raw.split('\n')
@@ -85,6 +98,7 @@ class niewiarygodneplCrawler(object):
             linie[0] = linie[0].replace("&quot;","")
             linie[0] = linie[0].replace("&amp;#8221;","")
             linie[0] = linie[0].replace(" - Media","")
+            linie[0] = linie[0].replace(" - Filmy","")
             linie[0] = linie[0].replace("/","")
 
             if not linie[0].encode("utf-8") in self.art_db:
@@ -135,7 +149,7 @@ class niewiarygodneplCrawler(object):
 
         for key in self.link_db.keys():
             key = key.decode("utf-8")
-            if self.link_db[key.encode("utf-8")] == 0:
+            if not self.link_db[key.encode("utf-8")] == 1:
                 wyn = self.crawl_one_page(key)
                 wyn = set(wyn)
                 for i in wyn:
@@ -182,7 +196,7 @@ class niewiarygodneplCrawler(object):
         for i in range(0,len(stri)):
             if stri[i].find('#') != -1:
                 stri[i] = stri[i][0:stri[i].find('#')]
-            if ("http://niewiarygodne.pl" in stri[i]):
+            if (self.is_article(stri[i])==True or self.is_category(stri[i])==True):
                 str2.append(stri[i])
 
         return set(str2)

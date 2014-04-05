@@ -24,6 +24,7 @@ for key1 in art_db.keys():
 		strona = 2
 		work = True
 		while (work == True):
+			end = True
 			for key2 in art_db.keys():
 				key2 = key2.decode("utf-8")
 				if ((key1 + " - Strona " + str(strona)) == key2):
@@ -33,12 +34,15 @@ for key1 in art_db.keys():
 					text1 = text1 + text2
 					art_db[key1.encode("utf-8")] = text1.encode("utf-8")
 					strona = strona + 1
-					do_usuniecia.append(key2)
+					do_usuniecia.append(key2.encode("utf-8"))
 					print "Dodano stronę do artykułu: " + key1.encode("utf-8")
-				else:
-					work = False
+					end = False
+					break
+			if (end==True):
+				work = False
 
 for key in do_usuniecia:
-	del art_db[key.encode("utf-8")]
+	del art_db[key]
 
+art_db.sync()
 art_db.close()
