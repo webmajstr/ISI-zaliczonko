@@ -14,18 +14,25 @@ from bs4 import BeautifulSoup
 
 class niewiarygodneplCrawler(object):
 
-    def __init__(self, dbname):
+    def __init__(self):
+
+        if not os.path.exists("./dane/"):
+            os.makedirs("./dane/")
+
         self.dict = {}
         self.link_db = shelve.Shelf(self.dict, protocol=None, writeback=True)
-        self.link_db = shelve.open(dbname)
+        self.link_db = shelve.open("./dane/dbname.db")
         self.art_db = shelve.Shelf(self.dict, protocol=None, writeback=True)
-        self.art_db = shelve.open("wyniki.db")
+        self.art_db = shelve.open("./dane/wyniki.db")
+        self.tmp_db = shelve.Shelf(self.dict, protocol=None, writeback=True)
+        self.tmp_db = shelve.open("./dane/tmp.db")
         self.artnum = 0
 
     def __del__(self):
         print "Poprawnie dodano " + str(self.artnum) + " nowych artykułów do bazy"
         self.link_db.close()
         self.art_db.close()
+        self.tmp_db.close()
 
     def is_article(self, url):
         if ("http://niewiarygodne.pl/kat," not in url):
@@ -81,7 +88,7 @@ class niewiarygodneplCrawler(object):
             linie[0] = linie[0].replace("/","")
 
             if not linie[0].encode("utf-8") in self.art_db:
-                print "Nowy art: " + url + '\n'
+
                 licznik = 0
                 linia = 1
                 for i in range(0,len(linie)-1):
@@ -113,11 +120,9 @@ class niewiarygodneplCrawler(object):
 
                 if (len(wynik)>0):
                     wynik = wynik[0:len(wynik)-1]
-
                     self.art_db[linie[0].encode("utf-8")] = wynik.encode("utf-8")
                     self.artnum = self.artnum + 1
-                    self.link_db.sync()
-                    self.art_db.sync()
+                    print "Nowy (" + str(self.artnum) + "): " + url + '\n'
                 else:
                     print "CHECK! - " + url + "\n"
 
@@ -132,21 +137,32 @@ class niewiarygodneplCrawler(object):
             key = key.decode("utf-8")
             if self.link_db[key.encode("utf-8")] == 0:
                 wyn = self.crawl_one_page(key)
-                self.inject_urls(set(wyn))
+                wyn = set(wyn)
+                for i in wyn:
+                    if i.encode("utf-8") not in self.tmp_db:
+                        self.tmp_db[i.encode("utf-8")] = 0
+
                 self.link_db.sync()
                 self.art_db.sync()
+                self.tmp_db.sync()
 
     def crawl(self, depth):
 
         for i in range(0,depth):
             print "---- Crawl level: " + str(i+1) + " ----" + '\n'
             self.crawl_one_level()
+            self.inject_urls()
 
-    def inject_urls(self, urls):
+    def inject_urls(self, start="http://niewiarygodne.pl/"):
 
-        for url in urls:
-            if not url.encode("utf-8") in self.link_db:
-                self.link_db[url.encode("utf-8")] = 0
+        if (len(self.link_db.keys())==0):
+            self.link_db[start.encode("utf-8")] = 0
+
+        for url in self.tmp_db.keys():
+            if not url in self.link_db:
+                self.link_db[url] = 0
+
+        self.tmp_db.clear()
 
     def is_html(self, urlobject):
 
@@ -173,6 +189,6 @@ class niewiarygodneplCrawler(object):
 
 
 if __name__ == '__main__':
-    NPL = niewiarygodneplCrawler("crawler.db")
-    NPL.inject_urls(["http://niewiarygodne.pl"])
+    NPL = niewiarygodneplCrawler()
+    NPL.inject_urls()
     NPL.crawl(100)

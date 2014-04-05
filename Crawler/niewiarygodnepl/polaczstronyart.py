@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 dict = {}
 art_db = shelve.Shelf(dict, protocol=None, writeback=True)
-art_db = shelve.open("wyniki.db")
+art_db = shelve.open("./dane/wyniki.db")
 
 do_usuniecia = list()
 
