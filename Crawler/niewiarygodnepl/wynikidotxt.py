@@ -24,6 +24,8 @@ for key in art_db.keys():
 	if not os.path.exists(path):
 		os.makedirs(path)
 	filename = key + ".txt"
-	with codecs.open(os.path.join(path, filename), 'wb', "utf-8") as temp_file:
-		temp_file.write(art_db[key.encode("utf-8")].decode("utf-8"))
-		print "Nowy plik: " + filename
+
+	f = open("./niesamowitepl/" + filename, 'w')
+	print "Zapis: " + filename
+	f.write(art_db[key.encode("utf-8")])
+	f.close

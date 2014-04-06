@@ -9,6 +9,7 @@ import cgi
 import string
 import re
 import os
+import HTMLParser
 from urllib import urlopen
 from bs4 import BeautifulSoup
 
@@ -90,13 +91,13 @@ class niewiarygodneplCrawler(object):
             html = urlcontent.decode(encoding)    
             raw = nltk.clean_html(html) 
             
+            h = HTMLParser.HTMLParser()
+            raw = h.unescape(raw)
+
             linie = raw.split('\n')
 
             linie[0] = linie[0].replace(" - Niewiarygodne.pl ","")
             linie[0] = linie[0].replace("?","")
-            linie[0] = linie[0].replace("&amp;#8222;","")
-            linie[0] = linie[0].replace("&quot;","")
-            linie[0] = linie[0].replace("&amp;#8221;","")
             linie[0] = linie[0].replace(" - Media","")
             linie[0] = linie[0].replace(" - Filmy","")
             linie[0] = linie[0].replace("/","")
@@ -149,7 +150,7 @@ class niewiarygodneplCrawler(object):
 
         for key in self.link_db.keys():
             key = key.decode("utf-8")
-            if not self.link_db[key.encode("utf-8")] == 1:
+            if self.link_db[key.encode("utf-8")] == 0:
                 wyn = self.crawl_one_page(key)
                 wyn = set(wyn)
                 for i in wyn:
