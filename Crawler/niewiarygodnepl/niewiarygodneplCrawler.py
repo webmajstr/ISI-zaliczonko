@@ -48,7 +48,7 @@ class niewiarygodneplCrawler(object):
             return False
         return True
 
-    def is_category(self,url):
+    def is_category(self, url):
         if ("http://niewiarygodne.pl/kat," not in url):
             return False
         if (",title," not in url):
@@ -58,6 +58,18 @@ class niewiarygodneplCrawler(object):
         if (",sort," in url):
             return False
         return True
+
+    def clear_line(self,line):
+
+        while (len(line)>0):
+            if (line[-1] == '\t' or line[-1] == '\n' or line[-1] == ' ' or line[-1] == '\r'):
+                line = line[0:len(line)-1]
+            elif (line[0] == '\t' or line[0] == '\n' or line[0] == ' ' or line[-1] == '\r'):
+                line = line[1:len(line)]
+            else:
+                break
+
+        return line
 
     def crawl_one_page(self, url):
         try:
@@ -115,10 +127,17 @@ class niewiarygodneplCrawler(object):
 
                 regexp = re.compile(r'\w')
 
+                if (licznik!=3):
+                    print "LICZNIK: " + url
+
+                wynik = ""
+
                 for i in range(linia,len(linie)-1):
                     if regexp.search(linie[i]) is not None:
-                        wynik = linie[i]
-                        linia = i+1
+                        linie[i] = self.clear_line(linie[i])
+                        if (len(linie[i])>1):
+                            wynik += linie[i]
+                            linia = i+1
                         break
 
                 for i in range(linia,len(linie)-1):
@@ -126,15 +145,27 @@ class niewiarygodneplCrawler(object):
                         break
                     if (len(linie[i])>0):
                         if (linie[i][0]!='\t' and linie[i][0]!=' ' and linie[i][0]!='\n'):
-                            wynik += linie[i]
+                            linie[i] = self.clear_line(linie[i])
+                            if (len(linie[i])>1):
+                                linie[i] = '\n' + linie[i]
+                                wynik += linie[i]
+                        elif (linie[i][0]==' ' and len(linie[i])>3 and linie[i][1]!=' ' and linie[i][1]!='\t'):
+                            linie[i] = self.clear_line(linie[i])
+                            if (len(linie[i])>1):
+                                linie[i] = '\n' + linie[i]
+                                wynik += linie[i]
 
-                while (wynik[0]==" " or wynik[0]=="\t"):
+                while (wynik[0]==" " or wynik[0]=="\t" or wynik[0]=="\n"):
                     wynik = wynik[1:len(wynik)]
                     if (len(wynik)==0):
                         break
 
+                while (wynik[-1]==" " or wynik[-1]=="\t" or wynik[-1]=="\n"):
+                    wynik = wynik[:-1]
+                    if (len(wynik)==0):
+                        break
+
                 if (len(wynik)>0):
-                    wynik = wynik[0:len(wynik)-1]
                     self.art_db[linie[0].encode("utf-8")] = wynik.encode("utf-8")
                     self.artnum = self.artnum + 1
                     print "Nowy (" + str(self.artnum) + "): " + url + '\n'
