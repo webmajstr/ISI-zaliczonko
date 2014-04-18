@@ -1,0 +1,24 @@
+Wrzucam folder z konfiguracj¹ solra.
+
+To wersja 0,7 prawie wszystko dzia³a.
+Nie dzia³a tylko wczytywanie danych z pliku xml
+(ale jak otworzymy xlm i przekopiujemy jego treœæ do okna to dzia³a).
+
+Instalacja Solra na waszych kompach (zak³adam, ¿e wszyscy z Windowsa korzystamy):
+1) Œci¹gamy Apache z:
+https://bitnami.com/redirect/to/34503/bitnami-solr-4.7.2-0-windows-installer.exe
+2) Wchodzimy tam gdzie zainstalowaliœmy solra -> apache-solr
+i podmieniamy katalog solr z tym co jest tutaj
+3) Odpalamy apacha i wpisujemy adres localhost:8080/solr/#
+(polecam w instalacji zmieniæ numer portu w³aœnie na ten)
+4) jeœli wszystko zrobiliœmy dobrze naszym oczom pojawi siê panel admina solr
+
+Ciekawostki od rudego:
+* dodajê przyk³adowy .xml ze wszystkimi przyk³adowymi danymi o zjawisku paranormalnym
+* jak wrócê do domu popracuje nad tym wczytywaniem xml z pliku, bo teraz pokazuje, ¿e przetworzy³
+ale nie dodaje ¿adnych wyników
+* ¿eby zobaczyæ jak wygl¹daj¹ zapytania trzeba z listy rozwijalnej po lewej stronie wybraæ 'collection1'
+a potem wybraæ z nowych opcji query i w pole 'q' wpisaæ frazê.
+W 'wt' wybieramy jak ma nam zwróciæ wyniki.
+
+Weso³ych Œwi¹t i czwartek wieczorem/pi¹tek od rana jestem dalej pod prac¹
