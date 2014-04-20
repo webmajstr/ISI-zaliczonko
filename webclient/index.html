@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dziwactwa i inne</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    </head>
+    <body>
+
+        <div>
+            <h1>Dziwactwa i inne</h1>
+            <input type="text" id="inputVal"/>
+            <button id="btn1">Szukaj</button>
+        </div>
+        <div id="resultDiv"></div>
+        <script src="js/jquery-2.1.0.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script>
+
+
+            function generateHTMLView(data) {
+                var output = "";
+                output += "<p><strong>Znaleziono haseł:</strong>:   " + data.numFound + "</p>";
+                var docs = data.docs;
+                for (var i=0, len = docs.length; i< len; i++) {
+                    output += "<br/></br>"
+                    output += "<p><strong>" + docs[i].id + "</strong>:   " + docs[i].title[0] + "</p>";
+                    output += "<p><strong>Data</strong>:   " + docs[i].datawydarzenia + "</p>";
+                    output += "<p><strong>Miejsce</strong>:   " + docs[i].miejsce[0] + "</p>";
+                    output += "<p>" + docs[i].description + "</p>";
+                }
+                return output;
+            }
+            function performSearch(value, callback) {
+
+                $.ajax({
+                    url: "http://localhost/solr/collection1/select?q=" + value + "&wt=json",
+                    type: "GET",
+                    dataType: 'jsonp',
+                    jsonp: 'json.wrf',
+                   // cache: false,
+                    success: function(data) {
+                        $("#resultDiv").html(generateHTMLView(data.response));
+
+                        
+                        callback();   
+                    },
+                    error: function (xhr, status, err) {
+                        $("#resultDiv").html("An error ocurred");
+                        callback();
+                    }
+                });
+
+
+            };
+
+
+            $(document).ready(function() {
+                $("#btn1").click(function() {
+                    if ($("#inputVal").prop("value") !== "") {
+                        //
+                        $("#btn1").attr("disabled", "disabled");
+                        performSearch($("#inputVal").prop("value"), function(){
+                            $("#btn1").removeAttr("disabled");      
+                            
+                            
+                        });
+                        $("#resultDiv").html("");
+                    } else {
+                        $("#resultDiv").html('Proszę podać dane do wyszukiwania')
+                    }
+                });
+            });
+
+
+        </script>
+    </body>
+</html>
