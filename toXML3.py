@@ -17,7 +17,7 @@ page = etree.Element("add")
 j = 1
 for filename in glob.iglob(os.path.join('*.txt')):
     with open(filename) as f:
-        print (f.name)
+        #print (f.name)
         j = j + 1
 j = 1
 
@@ -40,7 +40,7 @@ for filename in glob.iglob(os.path.join('*.txt')):
         field3.text = '{0}'.format(printdate)
     
         field4 = etree.SubElement(doc, 'field', name='miejsce')
-        place = re.findall(r'\s(?:w|obok|przed|na\sterenie|na|w\spółnocnej|w\społudniowej)\s[A-ZĄĘŚĆŻŹŁÓĆŃ][a-ząęśćżźłóćń]+(?:\s[A-ZĄĘŚĆŻŹŁÓĆŃ][a-ząęśćżźłóćń]+)?', lines)
+        place = re.findall(r'\s(?:w|obok|przed|na\sterenie|na|w\spółnocnej|w\społudniowej|W|Obok|Przed|Na\sterenie|W\spółnocnej|W\społudniowej|do)\s[A-ZĄĘŚĆŻŹŁÓĆŃ][a-ząęśćżźłóćń]+(?:\s[A-ZĄĘŚĆŻŹŁÓĆŃ][a-ząęśćżźłóćń]+)?', lines)
         removeduplicates1 = list(OrderedDict.fromkeys(place))
         printplace = ','.join(removeduplicates1)
         clearspaces = printplace.strip()
@@ -48,7 +48,8 @@ for filename in glob.iglob(os.path.join('*.txt')):
     
         field5 = etree.SubElement(doc, 'field', name='description')
         clearedtxt = lines.replace('\r', '')
-        field5.text = '%s' % re.sub('\t+', ' ', clearedtxt)
+        removech = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]', '', clearedtxt)
+        field5.text = '%s' % re.sub('\t+', ' ', removech)
         
         f.close()
         j = j + 1
